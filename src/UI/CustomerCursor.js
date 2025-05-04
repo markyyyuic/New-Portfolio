@@ -6,6 +6,24 @@ const CustomCursor = () => {
   const [mousePosition, setMousePosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const cursorPosition = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isMobile, setIsMobile] = useState(false); // 🆕 Mobile check
+
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+        setIsMobile(true); // It's mobile
+      } else {
+        setIsMobile(false); // It's desktop
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -46,6 +64,10 @@ const CustomCursor = () => {
     return () => cancelAnimationFrame(requestRef.current);
   }, [mousePosition]);
 
+  if (isMobile) {
+    return null; // 🛑 Do not render anything on mobile!
+  }
+
   return (
     <div
       ref={cursorRef}
@@ -53,7 +75,7 @@ const CustomCursor = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: isHovering ? '50px' : '30px', // ⬅️ If hover, bigger
+        width: isHovering ? '50px' : '30px',
         height: isHovering ? '50px' : '30px',
         borderRadius: '50%',
         backgroundColor: 'rgba(255, 255, 255, 0.3)',
